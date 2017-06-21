@@ -85,8 +85,6 @@ ISR(TIMER0_COMPA_vect) //ISR com alta prioridade (interrupções aninhadas não per
 	//pré incremento é mais rápido
 	++milliseconds;
 	++sensor1_timeout;
-	++sensor2_timeout;
-	++ultrassonic_timeout;
 }
 
 ISR(TIMER0_COMPB_vect, ISR_NOBLOCK) //ISR para limpar pino de trigger do ultrassonico (soporte a interrupção aninhada)
@@ -96,20 +94,17 @@ ISR(TIMER0_COMPB_vect, ISR_NOBLOCK) //ISR para limpar pino de trigger do ultrass
 	bitClear(TIMSK0, OCIE0B);
 }
 
-ISR(TIMER1_COMPB_vect, ISR_NOBLOCK) //ISR para limpar pino de trigger do ultrassonico (soporte a interrupção aninhada)
+ISR(TIMER1_COMPA_vect) //ISR para limpar pino de trigger do ultrassonico (soporte a interrupção aninhada)
 {
-	EN2Write(1);
-	EN1Write(1);
-	bitClear(TIMSK1, OCIE1B);
-}
-
-ISR(TIMER1_COMPA_vect, ISR_NOBLOCK) //ISR para limpar pino de trigger do ultrassonico (soporte a interrupção aninhada)
-{
-	EN2Write(0);
-	EN1Write(0);
-	OCR1B = TCNT1L;
-	//TIMSK0 |= 1 << OCIE0B; //habilita interrupção do COMPARADOR B do TIMER0 para limpar pino do trigger;
-	TIMSK1 |= (1 << OCIE1B);
+	if (MotorDirection == 0) {
+		bitClear(IN1_PORT, IN1_PIN);
+		bitSet(IN1_PORT, IN1_PIN);
+	}
+	else
+	{
+		bitClear(IN2_PORT, IN2_PIN);
+		bitSet(IN2_PORT, IN2_PIN);
+	}
 }
 
 ISR(TIMER2_COMPA_vect, ISR_NOBLOCK) //ISR para limpar pino de trigger do ultrassonico (soporte a interrupção aninhada)

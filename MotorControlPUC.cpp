@@ -58,7 +58,6 @@ void configBoard() {
 	//setupUltrassonic();
 	//setupCalibrate();
 	setupEEPROM();
-	//setupDeadTime();
 #ifdef MOTOR1_ENABLED
 	setupMotor1();
 #endif // DEBUG
@@ -88,10 +87,9 @@ void motor1PWM(uint8_t pwm) {
 
 void motor2PWM(uint8_t pwm) {
 	MotorDirection = 1;
-
-	bitSet(PORTB, 3);
-	bitClear(PORTD, 3);
-	OCR2A = constrain(pwm, pwm_min, pwm_max);
+	bitClear(IN1_PORT, IN1_PIN);
+	EN1Write(1);
+	OCR2A = pwm;
 }
 
 void calibration() {

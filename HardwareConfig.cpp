@@ -40,27 +40,6 @@ void configInterrupt_Channel2() {
 	//--------------------------------------------------------------------------------------//
 }
 
-void configInterrupt_DeadTime() {
-	//EICRA |= 0 << ISC11 | 1 << ISC10; //EICRA |= 1 << 1 | 1 << 0;
-									  //Habilita interrupção externo IN1
-	//EIMSK |= 1 << INT1; //EIMSK |= 1 << 0;
-	//bitSet(TIMSK2, OCIE2B);
-	//bitSet(TIMSK2, OCIE2A);
-	EN2_DDR |= 1 << EN2_PIN;
-	EN1_DDR |= 1 << EN1_PIN;
-	//--------------------------------------------------------------------------------------//
-	//-------------------Configuração Timer 1 como PWM (Pinos 9 e 10) -------------------//
-	TCCR1A = 0; //Limpa registrador de controle A do timer 1
-	TCCR1B = 0; //Limpa registrador de controle B do timer 1
-				//--------------------Configuração Prescaler------------------------//
-				//Prescaler em 1 (sem divisão)
-	TCCR1B |= (0 << CS12 | 1 << CS11 | 0 << CS10); //TCCR2B = 0 << 2 | 0 << 1 | 1 << 0;
-												   //-------------------Modo de contagem (waveform)--------------------//
-												   //Configura Wave Form Generator para o perar em modo phase correct pwm (dual slope counter)
-	TCCR1A |= (0 << WGM12 | 0 << WGM11 | 1 << WGM10); //TCCR2A |= (0 << 2 | 0 << 1 | 1 << 0);
-
-	TIMSK1 |= (1 << OCIE1A);
-}
 #pragma endregion
 
 #pragma region Timers
@@ -97,15 +76,14 @@ void configTimer1() {
 	TCCR1B = 0; //Limpa registrador de controle B do timer 1
 	//--------------------Configuração Prescaler------------------------//
 	//Prescaler em 1 (sem divisão)
-	TCCR1B |= (0 << CS12 | 1 << CS11 | 1 << CS10); //TCCR2B = 0 << 2 | 0 << 1 | 1 << 0;
+
 	 //-------------------Modo de contagem (waveform)--------------------//
 	 //Configura Wave Form Generator para o perar em modo phase correct pwm (dual slope counter)
-	TCCR1A |= (0 << WGM12 | 0 << WGM11 | 1 << WGM10); //TCCR2A |= (0 << 2 | 0 << 1 | 1 << 0);
-	//-----------------Configura polaridade PWM-------------------------//
-	/*modo nao invertido em canal A (pino 9) */
-	TCCR1A |= (0 << COM1A1 | 0 << COM1A0); //TCCR2A |= (1 << 7 | 1 << 6);
-	/*modo invertido em canal B (pino 10) */
-	TCCR1A |= (0 << COM1B1 | 0 << COM1B0); //TCCR2A |= (1 << 5 | 0 << 4);
+	TCCR1B |= (1 << WGM13) | (1 << WGM12);
+	TCCR1A |= (1 << WGM11) | (1 << WGM10);
+
+	OCR1A = 4096;
+	TCCR1B |= (1 << CS11) | (1 << CS10); //TCCR2B = 0 << 2 | 0 << 1 | 1 << 0;
 	//---------------------------------------------------------------------------------------//
 };
 void configTimer2() {
@@ -235,9 +213,7 @@ void setupMotor2() {
 	configGPIO_MOTOR2_ENABLE(); //configura pino Enable
 	configGPIO_MOTOR2_PWM(); //configura pinos do pwm
 	configTimer2(); //habilita pwm
+	configTimer1();
 }
 
-void setupDeadTime() {
-	configInterrupt_DeadTime();
-}
 #pragma endregion

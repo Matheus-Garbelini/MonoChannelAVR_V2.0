@@ -13,20 +13,18 @@
 void setup() {
 	setupBoard();
 	LedWrite(1);
-	DDRD |= 1 << 5;
-	bitSet(DDRB, EN2_PIN);
+	EnableMotorDriverRefresh(1);
 }
 
-uint8_t i = 0;
 void loop() {
-	static uint32_t last_milliseconds = milliseconds;
-	//robotProcess();
-	motor2PWM(i);
-	bitClear(PORTB, 3);
-	bitSet(PORTB, 3);
-	if (milliseconds - last_milliseconds > 3) {
-		last_milliseconds = milliseconds;
-
-		i++;
+	for (uint8_t i = 0; i < 255; i++)
+	{
+		motor2PWM(i);
+		delay_ms(5);
+	}
+	for (uint8_t i = 255; i > 0; i--)
+	{
+		motor2PWM(i);
+		delay_ms(5);
 	}
 }

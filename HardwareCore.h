@@ -33,6 +33,8 @@
 
 #define CalibrateRead() analogRead(A7) //le botão de calibração
 
+#define EnableMotorDriverRefresh(enabled) (enabled ? bitSet(TIMSK1,OCIE1A):bitClear(TIMSK1,OCIE1A))
+
 #ifdef SERIAL_MONITOR
 #define MONITOR_PRINTLN(x) do {Serial.println(x);} while(0)
 #define MONITOR_PRINT(x) do {Serial.print(x);} while (0)

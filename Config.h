@@ -6,9 +6,9 @@
 //--------------Dead Time-------------------------
 #define DEADTIME_OFFSET  9
 //--------------Time outs-----------------------
-#define SENSOR1_TIMEOUT 50UL      //timout de canal 1 em milisegundos
-#define SENSOR2_TIMEOUT 50UL      //timout de canal 2 em milisegundos
-#define ULTRASSONIC_TIMEOUT 50UL  //timout de ultrassonico em milisegundos
+#define SENSOR1_TIMEOUT 60UL      //timout de canal 1 em milisegundos
+#define SENSOR2_TIMEOUT 60UL      //timout de canal 2 em milisegundos
+#define ULTRASSONIC_TIMEOUT 60UL  //timout de ultrassonico em milisegundos
 #pragma endregion
 
 #pragma region Pins

@@ -107,7 +107,7 @@
   </ImportGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties vm.upload.useprogrammer="1" />
+      <UserProperties vm.upload.useprogrammer="1" VM_ADDITIONAL_PREPROC="" VM_ADDITIONAL_COMPILER_FLAGS="-O3" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>
