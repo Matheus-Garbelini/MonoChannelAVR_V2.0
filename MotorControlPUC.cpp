@@ -93,6 +93,22 @@ void motor2PWM(uint8_t pwm) {
 	OCR1A = value;
 }
 
+void motor2PWMRight(uint8_t pwm) {
+	uint8_t value = constrain(pwm, pwm_min, pwm_max);
+	MotorDirection = 1;
+	EN1Write(0);
+	IN1Write(0);
+	OCR1A = value;
+}
+
+void motor2PWMLeft(uint8_t pwm) {
+	uint8_t value = constrain(pwm, pwm_min, pwm_max);
+	MotorDirection = 0;
+	EN2Write(0);
+	IN2Write(0);
+	OCR1A = value;
+}
+
 void calibration() {
 	//-------------Calibrate----------------------
 
