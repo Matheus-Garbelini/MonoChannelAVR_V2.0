@@ -78,12 +78,12 @@ void configTimer1() {
 	//Prescaler em 1 (sem divisão)
 
 	 //-------------------Modo de contagem (waveform)--------------------//
-	 //Configura Wave Form Generator para o perar em modo phase correct pwm (dual slope counter)
-	TCCR1B |= (1 << WGM13) | (1 << WGM12);
-	TCCR1A |= (1 << WGM11) | (1 << WGM10);
-
-	OCR1A = 4096;
-	TCCR1B |= (1 << CS11) | (1 << CS10); //TCCR2B = 0 << 2 | 0 << 1 | 1 << 0;
+	//Configura Wave Form Generator para o perar em modo phase correct pwm (dual slope counter)
+	TCCR1B |= (0 << WGM13) | (1 << WGM12);
+	TCCR1A |= (0 << WGM11) | (1 << WGM10);
+	//TCCR1A |= (1 << COM1A1) | (1 << COM1A0) | (1 << COM1B1) | (1 << COM1B0);
+	TCCR1B |= (0 << CS12) | (1 << CS11) | (1 << CS10); //TCCR2B = 0 << 2 | 0 << 1 | 1 << 0;
+	TIMSK1 |= (1 << TOIE1) | (1 << OCIE1A);
 	//---------------------------------------------------------------------------------------//
 };
 void configTimer2() {
@@ -92,17 +92,19 @@ void configTimer2() {
 	TCCR2B = 0; //Limpa registrador de controle B do timer 2
 	//--------------------Configuração Prescaler------------------------//
 	//Prescaler em 1 (sem divisão)
-	TCCR2B |= (0 << CS22 | 1 << CS21 | 1 << CS20); //TCCR2B = 0 << 2 | 0 << 1 | 1 << 0;
+	TCCR2B |= (1 << CS22 | 0 << CS21 | 0 << CS20); //TCCR2B = 0 << 2 | 0 << 1 | 1 << 0;
 	//-------------------Modo de contagem (waveform)--------------------//
 	//Fast PWM TOP=OCRA
 	TCCR2A |= (1 << WGM21 | 1 << WGM20); //TCCR2A |= (0 << 2 | 0 << 1 | 1 << 0);
 	//-----------------Configura polaridade PWM-------------------------//
 	/*modo invertido em canal A (pino11) */
-	TCCR2A |= (0 << COM2A1 | 0 << COM2A0); //TCCR2A |= (1 << 7 | 1 << 6);
+	TCCR2A |= (1 << COM2A1 | 0 << COM2A0); //TCCR2A |= (1 << 7 | 1 << 6);
+	OCR2A = 254;
+	TCNT2 = TCNT1 + 1;
 	/*modo nao invertido em canal B (pino3) */
-	TCCR2A |= (0 << COM2B1 | 0 << COM2B0); //TCCR2A |= (1 << 5 | 0 << 4);
+	//TCCR2A |= (0 << COM2B1 | 0 << COM2B0); //TCCR2A |= (1 << 5 | 0 << 4);
 	//---------------------------------------------------------------------------------------//
-	TIMSK2 |= (1 << TOIE2) | (1 << OCIE2A);
+	//TIMSK2 |= (1 << TOIE2) | (1 << OCIE2A);
 };
 #pragma endregion
 
@@ -214,6 +216,26 @@ void setupMotor2() {
 	configGPIO_MOTOR2_PWM(); //configura pinos do pwm
 	configTimer2(); //habilita pwm
 	configTimer1();
+}
+
+void beckup() {
+	//-------------------Configuração Timer 1 como PWM (Pinos 9 e 10) -------------------//
+	TCCR1A = 0; //Limpa registrador de controle A do timer 1
+	TCCR1B = 0; //Limpa registrador de controle B do timer 1
+				//--------------------Configuração Prescaler------------------------//
+				//Prescaler em 1 (sem divisão)
+
+				//-------------------Modo de contagem (waveform)--------------------//
+				//Configura Wave Form Generator para o perar em modo phase correct pwm (dual slope counter)
+	TCCR1B |= (0 << WGM13) | (1 << WGM12);
+	TCCR1A |= (0 << WGM11) | (1 << WGM10);
+	TCCR1A |= (1 << COM1A1) | (1 << COM1A0) | (1 << COM1B1) | (1 << COM1B0);
+	OCR1AL = 128;
+	OCR1BL = 128;
+	IN1_DDR |= (1 << IN1_PIN);
+	IN2_DDR |= (1 << IN2_PIN);
+	TCCR1B |= (0 << CS12) | (1 << CS11) | (0 << CS10); //TCCR2B = 0 << 2 | 0 << 1 | 1 << 0;
+													   //---------------------------------------------------------------------------------------//
 }
 
 #pragma endregion

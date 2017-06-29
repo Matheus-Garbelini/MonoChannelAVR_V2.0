@@ -6,27 +6,27 @@
 //--------------Dead Time-------------------------
 #define DEADTIME_OFFSET  9
 //--------------Time outs-----------------------
-#define SENSOR1_TIMEOUT 60UL      //timout de canal 1 em milisegundos
-#define SENSOR2_TIMEOUT 60UL      //timout de canal 2 em milisegundos
-#define ULTRASSONIC_TIMEOUT 60UL  //timout de ultrassonico em milisegundos
+#define SENSOR1_TIMEOUT 50UL      //timout de canal 1 em milisegundos
+#define SENSOR2_TIMEOUT 50UL      //timout de canal 2 em milisegundos
+#define ULTRASSONIC_TIMEOUT 50UL  //timout de ultrassonico em milisegundos
 #pragma endregion
 
 #pragma region Pins
 //Pins definition
 //Motor 2
-#define IN1_PORT    PIND    // PWM pin 3
+#define IN1_PORT    PORTD   // PWM pin 3
 #define IN1_DDR     DDRD    // PWM pin 3
 #define IN1_PIN     PD3   // PWM pin 3
 
-#define IN2_PORT    PINB    // PWM pin 11
+#define IN2_PORT    PORTB    // PWM pin 11
 #define IN2_DDR     DDRB    // PWM pin 11
 #define IN2_PIN     PB3   // PWM pin 11
 //Motor 1
-#define IN3_PORT    PINB    // PWM pin 9
+#define IN3_PORT    PORTB    // PWM pin 9
 #define IN3_DDR     DDRB    // PWM pin 9
 #define IN3_PIN     PB1   // PWM pin 9
 
-#define IN4_PORT    PINB    // PWM pin 10
+#define IN4_PORT    PORTB    // PWM pin 10
 #define IN4_DDR     DDRB    // PWM pin 10
 #define IN4_PIN     PB2   // PWM pin 10
 

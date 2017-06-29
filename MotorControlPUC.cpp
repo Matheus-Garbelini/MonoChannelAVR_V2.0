@@ -86,10 +86,11 @@ void motor1PWM(uint8_t pwm) {
 }
 
 void motor2PWM(uint8_t pwm) {
+	uint8_t value = constrain(pwm, pwm_min, pwm_max);
 	MotorDirection = 1;
-	bitClear(IN1_PORT, IN1_PIN);
-	EN1Write(1);
-	OCR2A = pwm;
+	EN1Write(0);
+	IN1Write(0);
+	OCR1A = value;
 }
 
 void calibration() {

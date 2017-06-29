@@ -91,23 +91,33 @@ ISR(TIMER0_COMPB_vect, ISR_NOBLOCK) //ISR para limpar pino de trigger do ultrass
 {
 	EN2Write(1);
 	EN1Write(1);
-	bitClear(TIMSK0, OCIE0B);
 }
 
-ISR(TIMER1_COMPA_vect) //ISR para limpar pino de trigger do ultrassonico (soporte a interrupção aninhada)
-{
-	if (MotorDirection == 0) {
-		bitClear(IN1_PORT, IN1_PIN);
-		bitSet(IN1_PORT, IN1_PIN);
-	}
-	else
-	{
-		bitClear(IN2_PORT, IN2_PIN);
-		bitSet(IN2_PORT, IN2_PIN);
-	}
-}
+//ISR(TIMER1_COMPA_vect, ISR_NOBLOCK) //ISR para limpar pino de trigger do ultrassonico (soporte a interrupção aninhada)
+//{
+//	EN2Write(0);
+//	if (MotorDirection == 0) {
+//		bitWrite(PORTD, 3, 1);
+//	}
+//	else
+//	{
+//		bitWrite(PORTB, 3, 1);
+//	}
+//}
+//
+//ISR(TIMER1_COMPB_vect, ISR_NOBLOCK) //ISR para limpar pino de trigger do ultrassonico (soporte a interrupção aninhada)
+//{
+//	EN2Write(0);
+//	if (MotorDirection == 0) {
+//		bitWrite(PORTD, 3, 0);
+//	}
+//	else
+//	{
+//		bitWrite(PORTB, 3, 0);
+//	}
+//}
 
-ISR(TIMER2_COMPA_vect, ISR_NOBLOCK) //ISR para limpar pino de trigger do ultrassonico (soporte a interrupção aninhada)
+ISR(TIMER1_COMPA_vect, ISR_NOBLOCK) //ISR para limpar pino de trigger do ultrassonico (soporte a interrupção aninhada)
 {
 	if (MotorDirection == 0)
 		bitClear(EN1_PORT, EN1_PIN);
@@ -115,18 +125,58 @@ ISR(TIMER2_COMPA_vect, ISR_NOBLOCK) //ISR para limpar pino de trigger do ultrass
 		bitClear(EN2_PORT, EN2_PIN);
 }
 
-ISR(TIMER2_OVF_vect, ISR_NOBLOCK) //ISR para limpar pino de trigger do ultrassonico (soporte a interrupção aninhada)
+ISR(TIMER1_OVF_vect, ISR_NOBLOCK) //ISR para limpar pino de trigger do ultrassonico (soporte a interrupção aninhada)
 {
 	if (MotorDirection == 0)
 		bitSet(EN1_PORT, EN1_PIN);
 	else
 		bitSet(EN2_PORT, EN2_PIN);
 }
+//
+//ISR(TIMER2_COMPA_vect, ISR_NOBLOCK) //ISR para limpar pino de trigger do ultrassonico (soporte a interrupção aninhada)
+//{
+//	if (MotorDirection == 0)
+//		bitClear(EN1_PORT, EN1_PIN);
+//	else
+//		bitClear(EN2_PORT, EN2_PIN);
+//}
+//
+//ISR(TIMER2_OVF_vect, ISR_NOBLOCK) //ISR para limpar pino de trigger do ultrassonico (soporte a interrupção aninhada)
+//{
+//	if (MotorDirection == 0)
+//		bitSet(EN1_PORT, EN1_PIN);
+//	else
+//		bitSet(EN2_PORT, EN2_PIN);
+//}
+
+ISR(TIMER2_COMPA_vect, ISR_NOBLOCK) //ISR para limpar pino de trigger do ultrassonico (soporte a interrupção aninhada)
+{
+	EN2Write(0);
+	if (MotorDirection == 0) {
+		bitWrite(PORTD, 3, 1);
+	}
+	else
+	{
+		bitWrite(PORTB, 3, 1);
+	}
+}
+
+ISR(TIMER2_COMPB_vect, ISR_NOBLOCK) //ISR para limpar pino de trigger do ultrassonico (soporte a interrupção aninhada)
+{
+	EN2Write(0);
+	if (MotorDirection == 0) {
+		bitWrite(PORTD, 3, 0);
+	}
+	else
+	{
+		bitWrite(PORTB, 3, 0);
+	}
+}
 
 void delay_ms(uint16_t wait_stamp) {
 	uint32_t initial_stamp;
 	initial_stamp = milliseconds;
-	while (milliseconds - initial_stamp <= wait_stamp); //não faça nada
+	while (milliseconds - initial_stamp <= wait_stamp) {}; //não faça nada
 }
 
 void delay_us(uint16_t wait_stamp) {

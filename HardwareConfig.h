@@ -39,3 +39,5 @@ void setupEEPROM();
 void setupMotor1();
 
 void setupMotor2();
+
+void setupDeadTime();
