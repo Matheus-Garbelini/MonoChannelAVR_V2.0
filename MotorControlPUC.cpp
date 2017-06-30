@@ -373,4 +373,4 @@ void robotProcess() {
 #ifdef ENABLE_FAILSAFE
 	fail_safe();            // Call fail_safe check procedure
 #endif // ENABLE_FAILSAFE
-	}
+}
