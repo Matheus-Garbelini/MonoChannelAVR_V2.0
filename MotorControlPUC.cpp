@@ -275,6 +275,8 @@ void fail_safe() {
 }
 
 void drive() {
+	static uint16_t dynamic_max = 1900;
+	static uint16_t dynamic_min = 1200;
 	/**********************************************************************
 	Name: drive();
 
@@ -289,7 +291,9 @@ void drive() {
 #ifdef WATCHDOG_TIMER
 	wdt_reset();                                              //  I am still alive baby! (Says to Watchdog that everything is ok!)
 #endif
-																  //H-bridge
+	if (ch1 > dynamic_max)dynamic_max = ch1;
+	if (ch1 < dynamic_min)dynamic_min = ch1;
+	//H-bridge
 	if (ch1 > 1500 + dead_band) {          // FORWARD CASE
 		MONITOR_PRINTLN("-------> FOWARD ------->");               // Print direction
 
@@ -297,7 +301,7 @@ void drive() {
 			MONITOR_PRINTLN("<<<!!<<< BACKWARD TO FOWARD <<<!!<<<");       // Print warning!                               // Wait it
 		}
 		//motor1PWM(map_channel(ch1, ((ch1_max + ch1_min) / 2), ch1_max, pwm_half, pwm_max)); // Drive motor forward proportionally to receiver channel read!
-		motor2PWMRight(map_channel(ch1, 1500, 2000, pwm_min, pwm_max)); // Drive motor forward proportionally to receiver channel read!
+		motor2PWMRight(map(ch1, 1500 + dead_band, 2000, 255, 0)); // Drive motor forward proportionally to receiver channel read!
 
 		status = 1;                                 // Forward flag
 	}
@@ -309,7 +313,7 @@ void drive() {
 		}
 
 		//motor1PWM(map_channel(ch1, ch1_min, ((ch1_max + ch1_min) / 2), pwm_min, pwm_half)); // Drive motor backward proportionally to receiver channel read!
-		motor2PWMLeft(map_channel(ch1, 1000, 1500, pwm_min, pwm_max)); // Drive motor backward proportionally to receiver channel read!
+		motor2PWMLeft(map(ch1, 1000, 1500 - dead_band, 0, 255)); // Drive motor backward proportionally to receiver channel read!
 		status = 2;                               // Backward flag
 	}
 	else {                                                       // STOPPED CASE
@@ -369,4 +373,4 @@ void robotProcess() {
 #ifdef ENABLE_FAILSAFE
 	fail_safe();            // Call fail_safe check procedure
 #endif // ENABLE_FAILSAFE
-}
+	}
