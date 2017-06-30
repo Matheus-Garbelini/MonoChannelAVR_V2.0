@@ -18,16 +18,5 @@ void setup() {
 }
 
 void loop() {
-	for (uint8_t i = 0; i < 255; i++)
-	{
-		motor2PWMRight(i);
-		delay_ms(5);
-	}
-	delay(1000);
-	for (uint8_t i = 255; i > 0; i--)
-	{
-		motor2PWMRight(i);
-		delay_ms(5);
-	}
-	delay_ms(1000);
+	robotProcess();
 }

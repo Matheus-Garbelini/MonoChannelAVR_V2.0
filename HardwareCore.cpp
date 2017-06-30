@@ -62,7 +62,7 @@ ISR(PCINT1_vect, ISR_NOBLOCK) //interrupção com suporte a interrupções aninhadas
 //ISR do Sensor 2 (PB4)
 volatile uint8_t sensor2_ready = 0;
 volatile uint32_t sensor2_width;
-ISR(PCINT0_vect, ISR_NOBLOCK) //interrupção com suporte a interrupções aninhadas
+ISR(PCINT0_vect, ISR_BLOCK) //interrupção com suporte a interrupções aninhadas
 {
 	static uint32_t initial_stamp;
 	uint32_t stamp;

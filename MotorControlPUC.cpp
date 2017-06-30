@@ -86,35 +86,45 @@ void motor1PWM(uint8_t pwm) {
 }
 
 void motor2PWM(uint8_t pwm) {
-	uint8_t value = constrain(pwm, pwm_min, pwm_max);
 	MotorDirection = 1;
 	EN1Write(0);
 	IN1Write(0);
-	OCR1A = value;
+	OCR1A = pwm;
+}
+
+void motor2Stop() {
+	TCCR2A &= 0x0F;
+	TIMSK1 = 0;
+	EN2Write(1);
+	IN2Write(0);
+	EN1Write(1);
+	IN1Write(0);
 }
 
 void motor2PWMRight(uint8_t pwm) {
-	uint8_t value = constrain(pwm, pwm_min, pwm_max);
 	MotorDirection = 1;
+	TCCR2A |= (1 << COM2A1 | 0 << COM2A0); //TCCR2A |= (1 << 7 | 1 << 6);
 	EN1Write(0);
 	IN1Write(0);
-	OCR1A = value;
+	TIMSK1 |= (1 << TOIE1) | (1 << OCIE1A);
+	OCR1A = pwm;
 }
 
 void motor2PWMLeft(uint8_t pwm) {
-	uint8_t value = constrain(pwm, pwm_min, pwm_max);
 	MotorDirection = 0;
+	TCCR2A |= (1 << COM2B1 | 1 << COM2B0); //TCCR2A |= (1 << 7 | 1 << 6);
 	EN2Write(0);
 	IN2Write(0);
-	OCR1A = value;
+	TIMSK1 |= (1 << TOIE1) | (1 << OCIE1A);
+	OCR1A = pwm;
 }
 
 void calibration() {
 	//-------------Calibrate----------------------
 
 	//------------Turn motor off!-----------------
-	motor1PWM(pwm_half);  // Turn motor off!
-	motor2PWM(pwm_half);  // Turn motor off!
+
+	motor2Stop(); // Turn motor off!
 						  //-----Calibrate serial initialize flag-------
 	if (serial_monitor) {
 		Serial.print("5, ");
@@ -249,8 +259,7 @@ void fail_safe() {
 			wdt_reset();
 #endif
 
-			motor1PWM(pwm_half);
-			motor2PWM(pwm_half);      // Turn motor off!
+			motor2Stop();
 
 #ifdef SERIAL_MONITOR
 			Serial.print("Channel: ");              // Print channel value
@@ -281,32 +290,32 @@ void drive() {
 	wdt_reset();                                              //  I am still alive baby! (Says to Watchdog that everything is ok!)
 #endif
 																  //H-bridge
-	if (ch1 > (((ch1_max + ch1_min) / 2) + dead_band)) {          // FORWARD CASE
+	if (ch1 > 1500 + dead_band) {          // FORWARD CASE
 		MONITOR_PRINTLN("-------> FOWARD ------->");               // Print direction
 
 		if (status == 2) {                            // Ops! Inverting direction.. Lets wait mosfets completely turn off!
 			MONITOR_PRINTLN("<<<!!<<< BACKWARD TO FOWARD <<<!!<<<");       // Print warning!                               // Wait it
 		}
-		motor1PWM(map_channel(ch1, ((ch1_max + ch1_min) / 2), ch1_max, pwm_half, pwm_max)); // Drive motor forward proportionally to receiver channel read!
-		motor2PWM(map_channel(ch1, ((ch1_max + ch1_min) / 2), ch1_max, pwm_half, pwm_max)); // Drive motor forward proportionally to receiver channel read!
+		//motor1PWM(map_channel(ch1, ((ch1_max + ch1_min) / 2), ch1_max, pwm_half, pwm_max)); // Drive motor forward proportionally to receiver channel read!
+		motor2PWMRight(map_channel(ch1, 1500, 2000, pwm_min, pwm_max)); // Drive motor forward proportionally to receiver channel read!
 
 		status = 1;                                 // Forward flag
 	}
-	else if (ch1 < (((ch1_max + ch1_min) / 2) - dead_band)) {         // BACKWARD CASE
+	else if (ch1 < 1500 - dead_band) {         // BACKWARD CASE
 		MONITOR_PRINTLN("<-------- BACKWARD <-------");              // Print direction
 
 		if (status == 1) {                            // Ops! Inverting direction.. Lets wait mosfets completely turn off!
 			MONITOR_PRINTLN(">>>!!>>> FOWARD TO BACKWARD >>>!!>>>");       // Print warning!                                 // Wait it
 		}
 
-		motor1PWM(map_channel(ch1, ch1_min, ((ch1_max + ch1_min) / 2), pwm_min, pwm_half)); // Drive motor backward proportionally to receiver channel read!
-		motor2PWM(map_channel(ch1, ch1_min, ((ch1_max + ch1_min) / 2), pwm_min, pwm_half)); // Drive motor backward proportionally to receiver channel read!
+		//motor1PWM(map_channel(ch1, ch1_min, ((ch1_max + ch1_min) / 2), pwm_min, pwm_half)); // Drive motor backward proportionally to receiver channel read!
+		motor2PWMLeft(map_channel(ch1, 1000, 1500, pwm_min, pwm_max)); // Drive motor backward proportionally to receiver channel read!
 		status = 2;                               // Backward flag
 	}
 	else {                                                       // STOPPED CASE
 		MONITOR_PRINTLN("STOPED");                       // Print direction
-		motor1PWM(pwm_half);                        // Turn motor off!
-		motor2PWM(pwm_half);
+		//motor1PWM(pwm_half);                        // Turn motor off!
+		motor2Stop();
 		status = 0;                               // Stopped flag
 	}
 }
@@ -342,7 +351,6 @@ void robotProcess() {
 	wdt_reset();                        //  I am still alive baby! (Says to Watchdog that everything is ok!)
 #endif
 	ch1 = sensor1_getValue(); // Read receiver control channel
-	ch2 = sensor2_getValue(); // Read receiver control channel
 
 	if (!CalibrateRead()) {     // If board jumper is connected then enter into calibration Mode!
 		calibration();            // Call calibration procedure

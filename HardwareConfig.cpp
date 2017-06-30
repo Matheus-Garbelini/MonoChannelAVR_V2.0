@@ -99,6 +99,7 @@ void configTimer2() {
 	//-----------------Configura polaridade PWM-------------------------//
 	/*modo invertido em canal A (pino11) */
 	TCCR2A |= (1 << COM2A1 | 0 << COM2A0); //TCCR2A |= (1 << 7 | 1 << 6);
+	TCCR2A |= (1 << COM2B1 | 1 << COM2B0); //TCCR2A |= (1 << 7 | 1 << 6);
 	OCR2A = 254;
 	TCNT2 = TCNT1 + 1;
 	/*modo nao invertido em canal B (pino3) */
