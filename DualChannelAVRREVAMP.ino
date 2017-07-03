@@ -12,9 +12,9 @@
 
 void setup() {
 	setupBoard();
+	LED_STATUS_DDR |= (1 << LED_STATUS_PIN);
 	LedWrite(1);
 	delay_ms(1000);
-	LedWrite(0);
 }
 
 void loop() {

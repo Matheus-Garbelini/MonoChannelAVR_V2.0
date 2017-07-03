@@ -102,21 +102,41 @@ void motor2Stop() {
 }
 
 void motor2PWMRight(uint8_t pwm) {
+	static double _difference = 0;
+	static double Output_Activation = 255.0;
+	static uint32_t lastTime = milliseconds;
+
+	if (milliseconds - lastTime > 10) {
+		_difference = pwm - Output_Activation;
+		Output_Activation += (_difference*0.065);
+		lastTime = milliseconds;
+	}
+
 	MotorDirection = 1;
 	TCCR2A |= (1 << COM2A1 | 0 << COM2A0); //TCCR2A |= (1 << 7 | 1 << 6);
 	EN1Write(0);
 	IN1Write(0);
 	TIMSK1 |= (1 << TOIE1) | (1 << OCIE1A);
-	OCR1A = pwm;
+	OCR1A = Output_Activation;
 }
 
 void motor2PWMLeft(uint8_t pwm) {
+	static double _difference = 0;
+	static double Output_Activation = 255.0;
+	static uint32_t lastTime = milliseconds;
+
+	if (milliseconds - lastTime > 10) {
+		_difference = pwm - Output_Activation;
+		Output_Activation += (_difference*0.065);
+		lastTime = milliseconds;
+	}
+
 	MotorDirection = 0;
 	TCCR2A |= (1 << COM2B1 | 1 << COM2B0); //TCCR2A |= (1 << 7 | 1 << 6);
 	EN2Write(0);
 	IN2Write(0);
 	TIMSK1 |= (1 << TOIE1) | (1 << OCIE1A);
-	OCR1A = pwm;
+	OCR1A = Output_Activation;
 }
 
 void calibration() {
@@ -171,11 +191,11 @@ void calibration() {
 		wdt_reset();                            //  I am still alive baby! (Says to Watchdog that everything is ok!)
 #endif // WATCHDOG_TIMER
 
-		ch1 = sensor1_getValue();     // Read receiver control channel
+		ch1 = sensor1_getValue();
 		//ch2 = sensor2_getValue();     // Read receiver control channel
 
-		ch1_min = (ch1 < ch1_min) ? ch1 : ch1_min;  // Look if new value is smaller than old one
-		ch1_max = (ch1 > ch1_max) ? ch1 : ch1_max;  // Look if new value is bigger than old one
+		//ch1_min = (ch1 < ch1_min) ? ch1 : ch1_min;  // Look if new value is smaller than old one
+		//ch1_max = (ch1 > ch1_max) ? ch1 : ch1_max;  // Look if new value is bigger than old one
 
 		//ch2_min = (ch2 < ch2_min) ? ch2 : ch2_min;  // Look if new value is smaller than old one
 		//ch2_max = (ch2 > ch2_max) ? ch2 : ch2_max;  // Look if new value is bigger than old one
@@ -238,7 +258,7 @@ void fail_safe() {
 			wdt_reset();                                //  I am still alive baby! (Says to Watchdog that everything is ok!)
 #endif // DEBUG
 
-			ch1 = sensor1_getValue();           // Read receiver control channel
+			ch1 = constrain(sensor1_getValue(), 1000, 2000);           // Read receiver control channel
 			//ch2 = sensor2_getValue();           // Read receiver control channel
 
 			if (ch1 > fail_safe_limit)              // Check if channel 1 is connected (usually extreme values are 900<ch1<2200)
@@ -268,7 +288,7 @@ void fail_safe() {
 			Serial.println(ch2) = ;
 			Serial.println("Fail Safe ON!!!");          // Print fail_safe status
 #endif // DEBUG
-			//delay_ms(50);                         // Delay
+			delay_ms(50);                         // Delay
 		}
 	}
 	LedWrite(0);
@@ -277,6 +297,8 @@ void fail_safe() {
 void drive() {
 	static uint16_t dynamic_max = 1900;
 	static uint16_t dynamic_min = 1200;
+	uint32_t lastTime = 0;
+	uint8_t lastPwm = 0;
 	/**********************************************************************
 	Name: drive();
 
@@ -298,6 +320,12 @@ void drive() {
 		MONITOR_PRINTLN("-------> FOWARD ------->");               // Print direction
 
 		if (status == 2) {                            // Ops! Inverting direction.. Lets wait mosfets completely turn off!
+			lastTime = milliseconds;
+			while (1) {
+				motor2PWMLeft(255);
+
+				if (milliseconds - lastTime > 150)break;
+			}
 			motor2Stop();
 			MONITOR_PRINTLN("<<<!!<<< BACKWARD TO FOWARD <<<!!<<<");       // Print warning!                               // Wait it
 		}
@@ -310,6 +338,11 @@ void drive() {
 		MONITOR_PRINTLN("<-------- BACKWARD <-------");              // Print direction
 
 		if (status == 1) {                            // Ops! Inverting direction.. Lets wait mosfets completely turn off!
+			lastTime = milliseconds;
+			while (1) {
+				motor2PWMRight(255);
+				if (milliseconds - lastTime > 150)break;
+			}
 			motor2Stop();
 			MONITOR_PRINTLN(">>>!!>>> FOWARD TO BACKWARD >>>!!>>>");       // Print warning!                                 // Wait it
 		}
@@ -356,7 +389,7 @@ void robotProcess() {
 #ifdef WATCHDOG_TIMER
 	wdt_reset();                        //  I am still alive baby! (Says to Watchdog that everything is ok!)
 #endif
-	ch1 = sensor1_getValue(); // Read receiver control channel
+	ch1 = sensor1_getValue();
 
 	if (!CalibrateRead()) {     // If board jumper is connected then enter into calibration Mode!
 		calibration();            // Call calibration procedure
@@ -369,10 +402,11 @@ void robotProcess() {
 	Serial.print(" \tCH2: ");
 	Serial.println(ch2);
 #endif // MONI
-
+	fail_safe();            // Call fail_safe check procedure
+	ch1 = constrain(ch1, 1000, 2000);
 	drive();                // Call drive procedure
 
 #ifdef ENABLE_FAILSAFE
-	fail_safe();            // Call fail_safe check procedure
+
 #endif // ENABLE_FAILSAFE
-	}
+}
