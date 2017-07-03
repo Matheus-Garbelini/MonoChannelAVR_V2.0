@@ -83,7 +83,7 @@ void configTimer1() {
 	TCCR1A |= (0 << WGM11) | (1 << WGM10);
 	//TCCR1A |= (1 << COM1A1) | (1 << COM1A0) | (1 << COM1B1) | (1 << COM1B0);
 	TCCR1B |= (0 << CS12) | (1 << CS11) | (1 << CS10); //TCCR2B = 0 << 2 | 0 << 1 | 1 << 0;
-	TIMSK1 |= (1 << TOIE1) | (1 << OCIE1A);
+	//TIMSK1 |= (1 << TOIE1) | (1 << OCIE1A);
 	//---------------------------------------------------------------------------------------//
 };
 void configTimer2() {
@@ -98,8 +98,8 @@ void configTimer2() {
 	TCCR2A |= (1 << WGM21 | 1 << WGM20); //TCCR2A |= (0 << 2 | 0 << 1 | 1 << 0);
 	//-----------------Configura polaridade PWM-------------------------//
 	/*modo invertido em canal A (pino11) */
-	TCCR2A |= (1 << COM2A1 | 0 << COM2A0); //TCCR2A |= (1 << 7 | 1 << 6);
-	TCCR2A |= (1 << COM2B1 | 1 << COM2B0); //TCCR2A |= (1 << 7 | 1 << 6);
+	//TCCR2A |= (1 << COM2A1 | 0 << COM2A0); //TCCR2A |= (1 << 7 | 1 << 6);
+	//TCCR2A |= (1 << COM2B1 | 1 << COM2B0); //TCCR2A |= (1 << 7 | 1 << 6);
 	OCR2A = 254;
 	TCNT2 = TCNT1 + 1;
 	/*modo nao invertido em canal B (pino3) */

@@ -268,7 +268,7 @@ void fail_safe() {
 			Serial.println(ch2) = ;
 			Serial.println("Fail Safe ON!!!");          // Print fail_safe status
 #endif // DEBUG
-			delay_ms(50);                         // Delay
+			//delay_ms(50);                         // Delay
 		}
 	}
 	LedWrite(0);
@@ -298,6 +298,7 @@ void drive() {
 		MONITOR_PRINTLN("-------> FOWARD ------->");               // Print direction
 
 		if (status == 2) {                            // Ops! Inverting direction.. Lets wait mosfets completely turn off!
+			motor2Stop();
 			MONITOR_PRINTLN("<<<!!<<< BACKWARD TO FOWARD <<<!!<<<");       // Print warning!                               // Wait it
 		}
 		//motor1PWM(map_channel(ch1, ((ch1_max + ch1_min) / 2), ch1_max, pwm_half, pwm_max)); // Drive motor forward proportionally to receiver channel read!
@@ -309,6 +310,7 @@ void drive() {
 		MONITOR_PRINTLN("<-------- BACKWARD <-------");              // Print direction
 
 		if (status == 1) {                            // Ops! Inverting direction.. Lets wait mosfets completely turn off!
+			motor2Stop();
 			MONITOR_PRINTLN(">>>!!>>> FOWARD TO BACKWARD >>>!!>>>");       // Print warning!                                 // Wait it
 		}
 
@@ -373,4 +375,4 @@ void robotProcess() {
 #ifdef ENABLE_FAILSAFE
 	fail_safe();            // Call fail_safe check procedure
 #endif // ENABLE_FAILSAFE
-}
+	}
