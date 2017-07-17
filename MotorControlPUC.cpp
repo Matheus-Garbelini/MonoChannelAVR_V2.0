@@ -194,8 +194,8 @@ void calibration() {
 		ch1 = sensor1_getValue();
 		//ch2 = sensor2_getValue();     // Read receiver control channel
 
-		//ch1_min = (ch1 < ch1_min) ? ch1 : ch1_min;  // Look if new value is smaller than old one
-		//ch1_max = (ch1 > ch1_max) ? ch1 : ch1_max;  // Look if new value is bigger than old one
+		ch1_min = (ch1 < ch1_min) ? ch1 : ch1_min;  // Look if new value is smaller than old one
+		ch1_max = (ch1 > ch1_max) ? ch1 : ch1_max;  // Look if new value is bigger than old one
 
 		//ch2_min = (ch2 < ch2_min) ? ch2 : ch2_min;  // Look if new value is smaller than old one
 		//ch2_max = (ch2 > ch2_max) ? ch2 : ch2_max;  // Look if new value is bigger than old one
@@ -258,7 +258,7 @@ void fail_safe() {
 			wdt_reset();                                //  I am still alive baby! (Says to Watchdog that everything is ok!)
 #endif // DEBUG
 
-			ch1 = constrain(sensor1_getValue(), 1000, 2000);           // Read receiver control channel
+			ch1 = sensor1_getValue();          // Read receiver control channel
 			//ch2 = sensor2_getValue();           // Read receiver control channel
 
 			if (ch1 > fail_safe_limit)              // Check if channel 1 is connected (usually extreme values are 900<ch1<2200)
@@ -313,10 +313,9 @@ void drive() {
 #ifdef WATCHDOG_TIMER
 	wdt_reset();                                              //  I am still alive baby! (Says to Watchdog that everything is ok!)
 #endif
-	if (ch1 > dynamic_max)dynamic_max = ch1;
-	if (ch1 < dynamic_min)dynamic_min = ch1;
+
 	//H-bridge
-	if (ch1 > 1500 + dead_band) {          // FORWARD CASE
+	if (ch1 > (((ch1_max + ch1_min) / 2) + dead_band)) {          // FORWARD CASE
 		MONITOR_PRINTLN("-------> FOWARD ------->");               // Print direction
 
 		if (status == 2) {                            // Ops! Inverting direction.. Lets wait mosfets completely turn off!
@@ -330,11 +329,11 @@ void drive() {
 			MONITOR_PRINTLN("<<<!!<<< BACKWARD TO FOWARD <<<!!<<<");       // Print warning!                               // Wait it
 		}
 		//motor1PWM(map_channel(ch1, ((ch1_max + ch1_min) / 2), ch1_max, pwm_half, pwm_max)); // Drive motor forward proportionally to receiver channel read!
-		motor2PWMRight(map(ch1, 1500 + dead_band, 2000, 255, 0)); // Drive motor forward proportionally to receiver channel read!
+		motor2PWMRight(map(ch1, ((ch1_min + ch1_max) / 2) + dead_band, ch1_max, 255, 0)); // Drive motor forward proportionally to receiver channel read!
 
 		status = 1;                                 // Forward flag
 	}
-	else if (ch1 < 1500 - dead_band) {         // BACKWARD CASE
+	else if (ch1 < (((ch1_max + ch1_min) / 2) - dead_band)) {         // BACKWARD CASE
 		MONITOR_PRINTLN("<-------- BACKWARD <-------");              // Print direction
 
 		if (status == 1) {                            // Ops! Inverting direction.. Lets wait mosfets completely turn off!
@@ -348,7 +347,7 @@ void drive() {
 		}
 
 		//motor1PWM(map_channel(ch1, ch1_min, ((ch1_max + ch1_min) / 2), pwm_min, pwm_half)); // Drive motor backward proportionally to receiver channel read!
-		motor2PWMLeft(map(ch1, 1000, 1500 - dead_band, 0, 255)); // Drive motor backward proportionally to receiver channel read!
+		motor2PWMLeft(map(ch1, ch1_min, ((ch1_min + ch1_max) / 2) - dead_band, 0, 255)); // Drive motor backward proportionally to receiver channel read!
 		status = 2;                               // Backward flag
 	}
 	else {                                                       // STOPPED CASE
@@ -403,7 +402,7 @@ void robotProcess() {
 	Serial.println(ch2);
 #endif // MONI
 	fail_safe();            // Call fail_safe check procedure
-	ch1 = constrain(ch1, 1000, 2000);
+	ch1 = sensor1_getValue();
 	drive();                // Call drive procedure
 
 #ifdef ENABLE_FAILSAFE

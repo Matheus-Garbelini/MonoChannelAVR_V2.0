@@ -90,7 +90,7 @@
 #define INVERTED_EN
 //#define PWM_INVERTED
 //#define SERIAL_MONITOR
-//#define WATCHDOG_TIMER
+#define WATCHDOG_TIMER
 #define ENABLE_EEPROM_CHECK
 //#define MOTOR1_ENABLED
 #define MOTOR2_ENABLED
@@ -99,7 +99,7 @@
 #pragma region Functionalities
 // Functionalities
 #define serial_monitor  0   // Serial monitor ("debbug")              0 for off, >1 for ON
-#define watchdog_timer 0    // Force hardware reset when µC freezes   0 for off, >1 for ON
+#define watchdog_timer 1    // Force hardware reset when µC freezes   0 for off, >1 for ON
 #define serial_control 0      // Control the board by serial AT commands  0 for off, >1 for ON
 #define eeprom_check 1    // Shows the stored eeprom values for "low" and "high" values (only works if serial_monitor is enabled) 0 for off, >1 for ON
 //----------------------------------------------
